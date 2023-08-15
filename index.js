@@ -1,59 +1,60 @@
 const fs = require('fs');
-const { exec } = require('child_process');
-
-// Assuming you might use a library like 'usb' from npm to interact with USB devices
+const { spawn } = require('child_process');
 const usb = require('usb');
 
-const MAGIC_PACKET = Buffer.from('524d5654', 'hex');
+// Constants from goggles.js
+const DJI_GOGGLES_VENDOR_ID = 0x1234;  // Example value, replace with actual value
+const DJI_GOGGLES_PRODUCT_ID = 0x5678; 
 
+// Functions from goggles.js
 function findGoggles() {
-    // This is a placeholder. You'd need to identify the goggles based on some criteria (vendorId, productId, etc.)
-    return usb.findByIds(VENDOR_ID, PRODUCT_ID);
+    const goggles = usb.findByIds(DJI_GOGGLES_VENDOR_ID, DJI_GOGGLES_PRODUCT_ID);
+    return goggles;
 }
 
-function startStream(goggles, outputPath, preview = false) {
-    const outEndpoint = goggles.interfaces[0].endpoints[0]; // Adjust based on the actual structure of the goggles' USB interface
-    const inEndpoint = goggles.interfaces[0].endpoints[1];  // Adjust based on the actual structure of the goggles' USB interface
+// Constants from buffer.js
+const MAGIC_SEQUENCE = Buffer.from('00010910', 'hex');
+let dataBuffer = Buffer.alloc(0);
 
-    outEndpoint.transfer(MAGIC_PACKET, (err) => {
-        if (err) {
-            console.error('Error sending magic packet:', err);
-            return;
+// Functions from buffer.js
+function processData(chunk) {
+    dataBuffer = Buffer.concat([dataBuffer, chunk]);
+    let index = dataBuffer.indexOf(MAGIC_SEQUENCE);
+
+    while (index !== -1) {
+        if (dataBuffer.length >= index + MAGIC_SEQUENCE.length + 6) {
+            const frameCounter = dataBuffer.slice(index + MAGIC_SEQUENCE.length, index + MAGIC_SEQUENCE.length + 6);
+            console.log("Found sequence with frame counter:", frameCounter);
+            dataBuffer = dataBuffer.slice(index + MAGIC_SEQUENCE.length + 6);
+        } else {
+            break;
         }
-
-        const writeStream = fs.createWriteStream(outputPath);
-
-        inEndpoint.on('data', (data) => {
-            writeStream.write(data);
-
-            if (preview) {
-                // Pipe data to ffmpeg for live preview
-                const ffmpegPreview = exec('ffplay -i - -analyzeduration 1 -probesize 32 -sync ext');
-                ffmpegPreview.stdin.write(data);
-            }
-        });
-
-        inEndpoint.startPoll();
-    });
-}
-
-const args = process.argv.slice(2);
-let outputPath = 'outfile.bin';
-let preview = false;
-
-for (let i = 0; i < args.length; i++) {
-    if (args[i] === '-f' && args[i + 1]) {
-        outputPath = args[i + 1];
-        i++;
-    } else if (args[i] === '-o') {
-        preview = true;
+        index = dataBuffer.indexOf(MAGIC_SEQUENCE);
     }
 }
 
-const goggles = findGoggles();
-if (!goggles) {
-    console.error('DJI FPV Goggles not found!');
-    process.exit(1);
+// Functions from makemp4.js
+function startFfmpegStreaming(outputPath) {
+    const ffmpeg = spawn('ffmpeg', ['-i', '-', '-vcodec', 'copy', outputPath]);
+    ffmpeg.stdout.on('data', (data) => console.log(`ffmpeg stdout: ${data}`));
+    ffmpeg.stderr.on('data', (data) => console.error(`ffmpeg stderr: ${data}`));
+    ffmpeg.on('close', (code) => console.log(`ffmpeg process exited with code ${code}`));
+    return ffmpeg;
 }
 
-startStream(goggles, outputPath, preview);
+// Main Execution Logic
+const goggles = findGoggles();
+if (goggles) {
+    console.log("DJI Goggles found!");
+
+    const outputPath = 'outfile.mp4'; // You can modify this based on command-line arguments or other logic
+    const ffmpegProcess = startFfmpegStreaming(outputPath);
+
+    // Assuming inEndpoint is the endpoint from which you're receiving data from the goggles
+    inEndpoint.on('data', (data) => {
+        processData(data);
+        ffmpegProcess.stdin.write(data);
+    });
+} else {
+    console.log("DJI Goggles not found.");
+}
