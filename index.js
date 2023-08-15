@@ -1,10 +1,23 @@
 const fs = require('fs');
 const { spawn } = require('child_process');
+const { exec } = require('child_process');
 const usb = require('usb');
 
 // Constants from goggles.js
 const DJI_GOGGLES_VENDOR_ID = 0x1234;  // Example value, replace with actual value
 const DJI_GOGGLES_PRODUCT_ID = 0x5678; 
+
+function displayAsciiArt() {
+    exec('python phil.py', (error, stdout, stderr) => {
+        if (error) {
+            console.error(`exec error: ${error}`);
+            return;
+        }
+        console.log(stdout);
+    });
+}
+
+displayAsciiArt();
 
 // Functions from goggles.js
 function findGoggles() {
