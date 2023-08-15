@@ -15,16 +15,21 @@ brew install node
 # Install ffmpeg (this will include ffplay)
 brew install ffmpeg
 
-# Clone the phil-fpv repository (if not already cloned)
-if [ ! -d "phil-fpv" ]; then
-    git clone https://github.com/kluless13/phil-fpv.git
-fi
-
-# Navigate to the cloned repository directory
-cd phil-fpv
-
+# Assuming you're in the phil-fpv directory after cloning
 # Install Node.js dependencies
 npm install usb
 
+# Check if Python is installed, if not, install it
+if test ! $(which python3); then
+    echo "Installing Python..."
+    brew install python3
+fi
+
+# Install necessary Python libraries
+pip3 install pyfiglet
+
+# Display the ASCII art using the Python script
+python3 phil.py
+
 # Provide feedback
-echo "Installation complete. You can now run your Node.js application with ./index.js! Hope this works mate!"
+echo "Installation complete. You now have eyes! Hope this works mate!"

@@ -23,22 +23,21 @@ The `phil-fpv` project interfaces with DJI Goggles to capture and process video 
    ```
 
 3. **Run the Installation Script**:
-   - For Linux (Ubuntu/Debian):
+   - Run this (if it gets stuck, hit control+c and it should continue):
      ```bash
      chmod +x install.sh
      ./install.sh
      ```
 
-   - For macOS:
-     ```bash
-     chmod +x install_mac.sh
-     ./install_mac.sh
-     ```
-
-4. **Execute the Program**:
+4. **Test Programme**:
    ```bash
-   ./index.js
+   node index.js
    ```
+
+5. **Excute command**:
+    ```bash
+    node index.js --output | ffplay -i - -fast -flags2 fast -fflags nobuffer -flags low_delay -strict experimental -vf "setpts=N/60/TB" -framedrop -sync ext -probesize 32 -analyzeduration 0
+    ```
 
 ## Overview of Functionality
 

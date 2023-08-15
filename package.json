@@ -1,0 +1,22 @@
+{
+  "dependencies": {
+    "usb": "^2.9.0"
+  },
+  "name": "phil-fpv",
+  "description": "The `phil-fpv` project interfaces with DJI Goggles to capture and process video streams over USB. This README provides instructions on setting up the project and an overview of its functionality.",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": " node index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kluless13/phil-fpv.git"
+  },
+  "author": "kluless",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/kluless13/phil-fpv/issues"
+  },
+  "homepage": "https://github.com/kluless13/phil-fpv#readme"
+}
