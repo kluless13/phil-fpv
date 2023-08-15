@@ -1,49 +1,84 @@
 # phil-fpv
-FPV CLI tools for my friend
-Certainly! Let's break down the provided code in the `index.js` file and then discuss what's left to achieve based on the provided description.
 
-### What the `index.js` code does:
+The `phil-fpv` project interfaces with DJI Goggles to capture and process video streams over USB. This README provides instructions on setting up the project and an overview of its functionality.
 
-1. **Imports Necessary Modules**: 
-   - `fs`: Node.js built-in module for file system operations.
-   - `exec`: Allows execution of shell commands.
-   - `usb`: Assumed to be an npm package for USB device interactions.
+## Getting Started
 
-2. **Magic Packet Definition**: 
-   - Defines the magic packet `0x524d5654` that needs to be sent to the goggles.
+### Prerequisites
 
-3. **Function Definitions**:
-   - `findGoggles()`: Placeholder function to find the DJI Goggles based on some criteria (e.g., `vendorId`, `productId`).
-   - `startStream(goggles, outputPath, preview)`: Initiates the video stream by:
-     - Sending the magic packet to the goggles.
-     - Writing the received data to a file.
-     - Optionally piping the data to `ffplay` for live preview.
+- Node.js and npm
+- ffmpeg (with ffplay)
+- Git
 
-4. **Command Line Argument Parsing**:
-   - Parses command-line arguments to determine the output path and whether to preview the stream.
+### Installation
 
-5. **Main Execution**:
-   - Finds the goggles.
-   - If goggles are found, it starts the video stream.
+1. **Clone the Repository**:
+   ```bash
+   git clone https://github.com/kluless13/phil-fpv.git
+   ```
 
-### What's left to achieve:
+2. **Navigate to the Project Directory**:
+   ```bash
+   cd phil-fpv
+   ```
 
-1. **Identifying the Goggles**: 
-   - The `findGoggles()` function is a placeholder. You need to implement the logic to identify the DJI Goggles among other connected USB devices using their `vendorId` and `productId`.
+3. **Run the Installation Script**:
+   - For Linux (Ubuntu/Debian):
+     ```bash
+     chmod +x install.sh
+     ./install.sh
+     ```
 
-2. **Data Processing**:
-   - The code currently writes all received data to a file or pipes it to `ffplay`. However, there's no processing of the data to identify the `0x00010910` sequence or the 6-byte frame counter.
+   - For macOS:
+     ```bash
+     chmod +x install_mac.sh
+     ./install_mac.sh
+     ```
 
-3. **Streaming to ffmpeg**:
-   - The code provides a way to preview the stream using `ffplay`, but there's no implementation for piping the data to `ffmpeg` to produce an `.mp4` file.
+4. **Execute the Program**:
+   ```bash
+   ./index.js
+   ```
 
-4. **Error Handling**:
-   - Robust error handling is needed, especially for USB interactions.
+## Overview of Functionality
 
-5. **Additional Features**:
-   - Implementing the `-o` and `-f` combination.
-   - Handling scenarios where the goggles are not found or when there are data transfer errors.
-   - Exploring the unknown data format further.
-   - Implementing the "Nice to have" features from the TODO list, such as more error handling, waiting for goggles to connect, handling connection loss, supporting multiple goggles, and potentially rewriting the code in C.
+### DJI Goggles Interface
 
-In summary, the provided `index.js` code lays the foundation for the described functionality but requires further development to fully realize the described features and handle various scenarios robustly.
+The application identifies DJI Goggles connected via USB using specific vendor and product IDs. Once identified, it establishes communication with the goggles to capture raw video data.
+
+### Data Processing
+
+Incoming data from the goggles is processed to identify specific byte sequences, such as the beginning of an h264 frame. The application buffers this data and searches for known patterns to better understand the video stream's structure.
+
+### Video Streaming
+
+The application provides two primary modes for video streaming:
+
+1. **Preview Mode**: Users can preview the video stream in real-time using `ffplay`. This mode is useful for immediate feedback without saving the video.
+
+2. **Save Mode**: The video stream can be piped to `ffmpeg` to produce an `.mp4` file, allowing users to save and review the captured footage.
+
+### Error Handling
+
+The application includes error handling mechanisms to gracefully manage potential issues, such as the goggles not being detected, data processing errors, or streaming interruptions.
+
+## Future Enhancements
+
+- Improved data processing to better understand the video stream's structure.
+- Enhanced error handling and recovery mechanisms.
+- Support for multiple goggles and devices.
+- Integration with other video processing tools and platforms.
+
+---
+Phil, mein Freund, so treu und klar,
+Mit dir an meiner Seite, ist alles wunderbar.
+Dankbar bin ich, für jeden Moment,
+Den wir teilen, wo immer man uns kennt.
+
+Wie Spongebob und Patrick im tiefen Meer,
+Gehen wir durchs Leben, Seite an Seite, immer her.
+In Freude und Lachen, in Spaß und in Spiel,
+Bin ich so dankbar für jeden Augenblick mit Phil.
+
+Deine Freundschaft ist ein Geschenk, so rein,
+Mit dir, lieber Phil, will ich immer befreundet sein.
